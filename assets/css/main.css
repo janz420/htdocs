@@ -1,195 +1,195 @@
 * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    body {
-        background-color: #f8f9fa;
-        color: #333;
-        line-height: 1.6;
-        padding: 20px;
-    }
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+    padding-top: 80px; /* Added for fixed navbar */
+    padding-left: 20px;
+    padding-right: 20px;
+}
 
-    h1, h2 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-    }
+/* Fixed navbar styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    /* padding: 15px 0; */
+}
 
-    .container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 30px;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
+.navbar-dark.bg-dark {
+    background-color: #2c3e50 !important;
+}
 
-    .menu-list, .add-menu-form {
-        flex: 1;
-        min-width: 300px;
-        background: white;
-        padding: 25px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-        font-size: 14px;
-    }
+.navbar-nav .nav-link {
+    font-weight: 500;
+    padding: 8px 15px !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.3s;
+}
 
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #e0e0e0;
-    }
+.navbar-nav .nav-link:hover, 
+.navbar-nav .nav-link:focus {
+    color: white !important;
+}
 
-    th {
-        background-color: #f1f1f1;
-        font-weight: 600;
-    }
+.navbar-nav .nav-link.active {
+    color: white !important;
+    border-bottom: 2px solid #3498db;
+}
 
-    tr:hover {
-        background-color: #f9f9f9;
-    }
+/* Container and content styles */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    /* padding: 20px 0; */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+h1, h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    width: 100%;
+}
 
-    label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-        color: #555;
-    }
-    select,
-    select option,
+.menu-list, .add-menu-form {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-    input[type="text"]{
-        width: 50%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
-        transition: border 0.3s;
-    }
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
 
-    input[type="number"]{
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
-        transition: border 0.3s;
-    }
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
 
-    input:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-    }
+th {
+    background-color: #f1f1f1;
+    font-weight: 600;
+}
 
-    .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
+tr:hover {
+    background-color: #f9f9f9;
+}
 
-    .btn-primary {
-        background-color: #3498db;
-        color: white;
-    }
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+}
 
-    .btn-primary:hover {
-        background-color: #2980b9;
-    }
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
 
-    .btn-edit {
-        background-color: #2ecc71;
-        color: white;
-    }
+select,
+select option,
+input[type="text"] {
+    width: 50%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border 0.3s;
+}
 
-    .btn-edit:hover {
-        background-color: #27ae60;
-    }
+input[type="number"] {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border 0.3s;
+    width: 50%;
+}
 
-    .btn-delete {
-        background-color: #e74c3c;
-        color: white;
-    }
+input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
 
-    .btn-delete:hover {
-        background-color: #c0392b;
-    }
+/* Button styles */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
 
-    .actions {
-        display: flex;
-        gap: 8px;
-    }
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
 
-    form.inline-form {
-        display: inline;
-    }
+.btn-primary:hover {
+    background-color: #2980b9;
+}
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .container {
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .menu-list, .add-menu-form {
-            width: 100%;
-        }
-        
-        table {
-            display: block;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        
-        .actions {
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .actions .btn {
-            width: 100%;
-            text-align: center;
-        }
-    }
+.btn-edit {
+    background-color: #2ecc71;
+    color: white;
+}
 
-    @media (max-width: 480px) {
-        th, td {
-            padding: 8px 10px;
-            font-size: 13px;
-        }
-        
-        input[type="text"],
-        input[type="number"] {
-            padding: 10px;
-            font-size: 14px;
-        }
-        
-        .btn {
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-    }
+.btn-edit:hover {
+    background-color: #27ae60;
+}
 
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+form.inline-form {
+    display: inline;
+}
+
+/* Category filter styles */
 .category-filter {
-margin-bottom: 20px;
-display: flex;
-flex-wrap: wrap;
-gap: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .btn-filter {
@@ -211,4 +211,91 @@ gap: 10px;
 
 .btn-filter.active:hover {
     background-color: #2980b9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+    
+    .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .menu-list, .add-menu-form {
+        width: 100%;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    select,
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    th, td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    input[type="text"],
+    input[type="number"] {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* assets/css/admin.css */
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+.card-body canvas {
+    min-height: 300px;
+    max-height: 400px;
+    width: 100% !important;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.navbar {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
 }

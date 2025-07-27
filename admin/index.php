@@ -1,110 +1,352 @@
 <?php
-include_once '../config/Database.php';
-include_once '../models/Menu.php';
+// admin/dashboard.php
+require_once '../config/database.php';
+require_once '../models/Sales.php';
 
+// Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
 
-$menu = new Menu($db);
-$stmt = $menu->read();
-$stmt_categories = $menu->readCategories();
+// Initialize Sales model
+$sales = new Sales($db);
+
+// Get filter values from request
+$filters = [
+    'item_id' => $_GET['item_id'] ?? null,
+    'size' => $_GET['size'] ?? null,
+    'start_date' => $_GET['start_date'] ?? null,
+    'end_date' => $_GET['end_date'] ?? null
+];
+
+// Get data
+$salesData = $sales->getSalesData($filters)->fetchAll(PDO::FETCH_ASSOC);
+$weeklyIncome = $sales->getWeeklyIncome()->fetchAll(PDO::FETCH_ASSOC);
+$monthlyIncome = $sales->getMonthlyIncome()->fetchAll(PDO::FETCH_ASSOC);
+$items = $sales->getItems()->fetchAll(PDO::FETCH_ASSOC);
+
+// Prepare data for charts
+$itemSalesData = array_reduce($salesData, function($result, $item) {
+    $key = $item['food_name'];
+    $result[$key] = ($result[$key] ?? 0) + $item['item_qty'];
+    return $result;
+}, []);
+
+$sizeData = array_reduce($salesData, function($result, $item) {
+    $key = $item['item_size'] ?: 'N/A';
+    $result[$key] = ($result[$key] ?? 0) + $item['item_qty'];
+    return $result;
+}, []);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tupad Balay Management</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
+    <title>Business Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Tupad Balay Dashboard</h1>
-    
-    <div class="container">
-
-
-    <!-- Modify your menu list section -->
-    <div class="menu-list">
-            <!-- Add this above your menu list -->
-            <div class="category-filter">
-                <button class="btn btn-filter active" data-category="all">Show All</button>
-                <?php 
-                $stmt_categories->execute(); // Reset categories pointer
-                while ($cat = $stmt_categories->fetch(PDO::FETCH_ASSOC)): ?>
-                    <button class="btn btn-filter" data-category="<?php echo htmlspecialchars($cat['category_name']); ?>">
-                        <?php echo htmlspecialchars($cat['category_name']); ?>
-                    </button>
-                <?php endwhile; ?>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Tupad Balay Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.php">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="add.php">Add Menu</a>
+                    </li>
+                </ul>
             </div>
-        <h2>Menu Items</h2>
-        <div id="menu-items-container">
-            <?php 
-            // Default show all items
-            $stmt_menu = $menu->read();
-            if($stmt_menu->rowCount() > 0): ?>
-                <table>
-                    <thead>
-                        <tr>                            
-                            <th>Name</th>
-                            <th>Regular</th>
-                            <th>Solo</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $stmt_menu->fetch(PDO::FETCH_ASSOC)): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($row['food_name']); ?></td>
-                            <td><?php echo htmlspecialchars($row['food_regular_price']); ?></td>
-                            <td><?php echo htmlspecialchars($row['food_solo_price']); ?></td>
-                            <td class="actions">
-                                <a href="update_form.php?id=<?php echo $row['food_id']; ?>" class="btn btn-edit">Edit</a>
-                                <form action="delete.php" method="POST" class="inline-form">
-                                    <input type="hidden" name="id" value="<?php echo $row['food_id']; ?>">
-                                    <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No menu items found.</p>
-            <?php endif; ?>
+        </div>
+    </nav>
+    <div class="container-fluid mt">
+        <!-- Filter Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-filter me-1"></i>
+                Filters
+            </div>
+            <div class="card-body">
+                <form method="GET" action="index.php">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Item</label>
+                            <select name="item_id" class="form-select">
+                                <option value="">All Items</option>
+                                <?php foreach($items as $item): ?>
+                                <option value="<?= htmlspecialchars($item['food_id']) ?>" 
+                                    <?= $filters['item_id'] == $item['food_id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($item['food_name']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Size</label>
+                            <select name="size" class="form-select">
+                                <option value="">All Sizes</option>
+                                <option value="Solo" <?= $filters['size'] == 'Solo' ? 'selected' : '' ?>>Solo</option>
+                                <option value="Regular" <?= $filters['size'] == 'Regular' ? 'selected' : '' ?>>Regular</option>
+                                <option value="Large" <?= $filters['size'] == 'Large' ? 'selected' : '' ?>>Large</option>
+                                <option value="Small" <?= $filters['size'] == 'Small' ? 'selected' : '' ?>>Small</option>
+                                <option value="Addon" <?= $filters['size'] == 'Addon' ? 'selected' : '' ?>>Addon</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" name="start_date" class="form-control" value="<?= htmlspecialchars($filters['start_date']) ?>">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">End Date</label>
+                            <input type="date" name="end_date" class="form-control" value="<?= htmlspecialchars($filters['end_date']) ?>">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Sales by Item
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesByItemChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-1"></i>
+                        Size Distribution
+                    </div>
+                    <div class="card-body">
+                        <canvas id="sizeDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-1"></i>
+                        Weekly Income
+                    </div>
+                    <div class="card-body">
+                        <canvas id="weeklyIncomeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-area me-1"></i>
+                        Monthly Income
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyIncomeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sales Data Table -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                Sales Data
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Size</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($salesData as $sale): ?>
+                            <tr>
+                                <td><?= htmlspecialchars(date('M d, Y h:i A', strtotime($sale['purchase_date']))) ?></td>
+                                <td><?= htmlspecialchars($sale['food_name']) ?></td>
+                                <td><?= htmlspecialchars($sale['item_size']) ?></td>
+                                <td><?= htmlspecialchars($sale['item_qty']) ?></td>
+                                <td>₱<?= htmlspecialchars(number_format($sale['item_price'], 2)) ?></td>
+                                <td>₱<?= htmlspecialchars(number_format($sale['item_subtotal'], 2)) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-        <!-- Add Menu Form -->
-        <div class="add-menu-form">
-            <form action="create.php" method="POST">
-                <h2>Add New Item</h2>
-                <div class="form-group">
-                    <label for="category">Category:</label>
-                    <select name="category" id="category" required>
-                        <option value="">--Select Category--</option>
-                        <?php 
-                        $stmt_categories->execute();
-                        while ($row = $stmt_categories->fetch(PDO::FETCH_ASSOC)): ?>
-                        <option value="<?php echo htmlspecialchars($row['category_id']); ?>"><?php echo htmlspecialchars($row['category_name']); ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="price1">Price Regular:</label>
-                    <input type="number" id="price1" name="price1" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="price2">Price Solo:</label>
-                    <input type="number" id="price2" name="price2" step="0.01" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Item</button>
-            </form>
-        </div>
-    </div>
-<script src="../assets/js/script.js"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+    // Sales by Item Chart
+    const itemSalesCtx = document.getElementById('salesByItemChart').getContext('2d');
+    new Chart(itemSalesCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($itemSalesData)) ?>,
+            datasets: [{
+                label: 'Quantity Sold',
+                data: <?= json_encode(array_values($itemSalesData)) ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Top Selling Items'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Quantity Sold'
+                    }
+                }
+            }
+        }
+    });
+
+    // Size Distribution Chart
+    const sizeCtx = document.getElementById('sizeDistributionChart').getContext('2d');
+    new Chart(sizeCtx, {
+        type: 'pie',
+        data: {
+            labels: <?= json_encode(array_keys($sizeData)) ?>,
+            datasets: [{
+                data: <?= json_encode(array_values($sizeData)) ?>,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Sales by Size'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Weekly Income Chart
+    const weeklyCtx = document.getElementById('weeklyIncomeChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'line',
+        data: {
+            labels: <?= json_encode(array_column($weeklyIncome, 'day')) ?>,
+            datasets: [{
+                label: 'Daily Income (₱)',
+                data: <?= json_encode(array_column($weeklyIncome, 'daily_total')) ?>,
+                fill: false,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Weekly Income Trend'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Amount (₱)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Monthly Income Chart
+    const monthlyCtx = document.getElementById('monthlyIncomeChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_column($monthlyIncome, 'month')) ?>,
+            datasets: [{
+                label: 'Monthly Income (₱)',
+                data: <?= json_encode(array_column($monthlyIncome, 'monthly_total')) ?>,
+                backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Monthly Income'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Amount (₱)'
+                    }
+                }
+            }
+        }
+    });
+    </script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+/* admin.css */
+/* Add this at the top to override Bootstrap navbar styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-dark.bg-dark {
+    background-color: #2c3e50 !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 8px 0 !important;
+    margin: 0 10px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.3s;
+}
+
+.nav-link:hover, 
+.nav-link:focus {
+    color: white !important;
+}
+
+.nav-link.active {
+    color: white !important;
+    border-bottom: 2px solid #3498db;
+}
+
+/* Add body padding to account for fixed navbar */
+body {
+    padding-top: 70px;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Make sure container doesn't conflict with Bootstrap */
+.container {
+    max-width: 1400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .navbar-collapse {
+        padding-top: 15px;
+    }
+    
+    .nav-link {
+        padding: 10px 0 !important;
+        margin: 0;
+    }
+    
+    .nav-link.active {
+        border-bottom: none;
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+}

@@ -71,42 +71,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     parseFloat(this.getAttribute('data-solo-price')) : null
         };
         
-        // Determine if this is a drink or food (assuming category_id is stored in data attribute)
-        currentItemCategory = this.getAttribute('data-category-id') || 
-                            (this.querySelector('.menu-item-prices').textContent.includes('Large') ? 2 : 1);
+        // Get category ID (default to 1 if not specified)
+        currentItemCategory = parseInt(this.getAttribute('data-category-id')) || 1;
         
         // Update selection panel
         selectedItemName.textContent = currentSelectedItem.name;
         
-        // Set default size and price based on category
-        if (currentItemCategory == 2) { // Drinks
+        // Get price option elements
+        const regularOption = document.getElementById('regular-option');
+        const soloOption = document.getElementById('solo-option');
+        const priceOptionsContainer = document.querySelector('.price-options');
+        
+        // Reset all options
+        document.querySelectorAll('.price-option').forEach(option => option.classList.remove('selected'));
+        
+        // Handle different categories
+        if (currentItemCategory === 2) { // Drinks
             currentSelectedSize = 'Large';
             currentSelectedPrice = currentSelectedItem.regularPrice;
-        } else { // Food
+            
+            regularOption.textContent = 'Large';
+            soloOption.textContent = 'Small';
+            regularOption.classList.add('selected');
+            soloOption.style.display = currentSelectedItem.soloPrice ? 'block' : 'none';
+            //priceOptionsContainer.style.display = 'block';
+        } 
+        else if (currentItemCategory === 3) { // Addon
+            currentSelectedSize = 'Addon';
+            currentSelectedPrice = currentSelectedItem.regularPrice;
+            
+            // Hide the entire price options container for addons
+            priceOptionsContainer.style.display = 'none';
+        }
+        else { // Food (default)
             currentSelectedSize = 'Regular';
             currentSelectedPrice = currentSelectedItem.regularPrice;
+            
+            regularOption.textContent = 'Regular';
+            soloOption.textContent = 'Solo';
+            regularOption.classList.add('selected');
+            soloOption.style.display = currentSelectedItem.soloPrice ? 'block' : 'none';
+            //priceOptionsContainer.style.display = 'block';
         }
         
+        // Reset quantity and notes
         quantityInput.value = 1;
         notesInput.value = '';
-        
-        // Update price options
-        priceOptions.forEach(option => option.classList.remove('selected'));
-        
-        // Set the appropriate option as selected
-        if (currentItemCategory == 2) { // Drinks
-            document.getElementById('regular-option').textContent = 'Large';
-            document.getElementById('solo-option').textContent = 'Small';
-            document.getElementById('regular-option').classList.add('selected');
-        } else { // Food
-            document.getElementById('regular-option').textContent = 'Regular';
-            document.getElementById('solo-option').textContent = 'Solo';
-            document.getElementById('regular-option').classList.add('selected');
-        }
-        
-        // Hide solo option if not available
-        document.getElementById('solo-option').style.display = 
-            currentSelectedItem.soloPrice ? 'block' : 'none';
         
         // Show selection panel
         selectionPanel.style.display = 'block';

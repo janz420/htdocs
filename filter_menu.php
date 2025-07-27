@@ -27,7 +27,8 @@ if($stmt->rowCount() > 0): ?>
              data-id="<?php echo $row['food_id']; ?>"
              data-name="<?php echo htmlspecialchars($row['food_name']); ?>"
              data-regular-price="<?php echo htmlspecialchars($row['food_regular_price']); ?>"
-             data-solo-price="<?php echo htmlspecialchars($row['food_solo_price'] ?? ''); ?>">
+             data-solo-price="<?php echo htmlspecialchars($row['food_solo_price'] ?? ''); ?>"
+             data-category-id="<?php echo $row['category_id']; ?>">
             <img src="<?php echo htmlspecialchars($row['food_image'] ?? $defaultImage); ?>" 
                  alt="<?php echo htmlspecialchars($row['food_name']); ?>" 
                  class="menu-item-image">
