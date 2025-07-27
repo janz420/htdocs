@@ -17,10 +17,11 @@ if(!empty($category) && $category !== 'all') {
 if($stmt->rowCount() > 0): ?>
     <div class="menu-grid">
         <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): 
-            $itemCategory = $row['category_name'] ?? 'Food';
-            $defaultImage = (strtolower($itemCategory) == 'drink' ? 
+            $itemCategory = $row['category_id'] ?? 1;
+            $defaultImage = $itemCategory == 2 ? 
                 'assets/images/default-drink.png' : 
-                'assets/images/default-food.png');
+                'assets/images/default-food.png';
+            $cat = $row['category_id'] ?? null;
         ?>
         <div class="menu-item-card" 
              data-id="<?php echo $row['food_id']; ?>"
@@ -32,9 +33,33 @@ if($stmt->rowCount() > 0): ?>
                  class="menu-item-image">
             <div class="menu-item-name"><?php echo htmlspecialchars($row['food_name']); ?></div>
             <div class="menu-item-prices">
-                <span>Regular: ₱<?php echo htmlspecialchars($row['food_regular_price']); ?></span>
-                <?php if (!empty($row['food_solo_price'])): ?>
-                    <span>Solo: ₱<?php echo htmlspecialchars($row['food_solo_price']); ?></span>
+                <span><?php 
+                switch($cat){
+                    case 1:
+                        echo "Regular ₱".htmlspecialchars($row['food_regular_price']);
+                        break;
+                    case 2:
+                        echo "Large ₱".htmlspecialchars($row['food_regular_price']);
+                        break;
+                    case 3:
+                        echo "Price ₱".htmlspecialchars($row['food_regular_price']) ?? null;
+                        break;
+                }
+                ?></span>
+                <?php if (!empty($row['food_solo_price'])): ?><br>
+                    <span><?php 
+                        switch($cat){
+                            case 1:
+                                echo "Solo ₱".htmlspecialchars($row['food_solo_price']);
+                                break;
+                            case 2:
+                                echo "Small ₱".htmlspecialchars($row['food_solo_price']);
+                                break;
+                            case 3:
+                                echo null;
+                                break;
+                        }
+                        ?></span>
                 <?php endif; ?>
             </div>
         </div>

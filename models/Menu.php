@@ -44,7 +44,7 @@ class Menu {
     }
 
     public function readByCategoryName($category_name) {
-        $query = "SELECT m.food_id, m.food_name, m.food_regular_price, m.food_solo_price 
+        $query = "SELECT c.category_id, c.category_name, m.food_id, m.food_name, m.food_regular_price, m.food_solo_price 
                 FROM menu m
                 JOIN category c ON m.category_id = c.category_id
                 WHERE c.category_name = :category_name

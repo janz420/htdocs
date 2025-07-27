@@ -13,16 +13,14 @@ $stmt_categories = $menu->readCategories();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/assets/images/favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tupad Balay Management</title>
+    <title>Tupad Balay Counter</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/order.css">
-    <script src="assets/js/order.js"></script>
-    <link rel="icon" href="/assets/images/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-    <h1>Tupad Balay Dashboard</h1>
-    
     <div class="container">
         <!-- Order Section -->
         <div class="order-container">
@@ -31,7 +29,7 @@ $stmt_categories = $menu->readCategories();
             <table class="order-table" id="order-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th hidden>ID</th>
                         <th>Item</th>
                         <th>Size</th>
                         <th>Price</th>
@@ -46,7 +44,7 @@ $stmt_categories = $menu->readCategories();
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="6" style="text-align: right;"></td>
+                        <td colspan="5" style="text-align: right;"></td>
                         <td>Total:</td>
                         <td id="order-total"></td>
                     </tr>
@@ -75,23 +73,52 @@ $stmt_categories = $menu->readCategories();
                 if($stmt_menu->rowCount() > 0): ?>
                     <div class="menu-grid">
                         <?php while ($row = $stmt_menu->fetch(PDO::FETCH_ASSOC)): 
-                            $category = $row['category_id'] ?? '';
-                            $defaultImage = ($category == 2) ? 
+                            $category = $row['category_id'] ?? 1;
+                            $defaultImage = $category == 2 ? 
                                 'assets/images/default-drink.png' : 
                                 'assets/images/default-food.png';
+                            $cat = $row['category_id'] ?? null;
                         ?>
-                        <div class="menu-item-card" data-id="<?php echo $row['food_id']; ?>">
-                            <img src="<?php echo htmlspecialchars($row['food_image'] ?? 'assets/images/default-food.png');?>" 
-                                alt="<?php echo htmlspecialchars($row['food_name']); ?>" 
-                                class="menu-item-image">
-                            <div class="menu-item-name"><?php echo htmlspecialchars($row['food_name']); ?></div>
-                            <div class="menu-item-prices">
-                                <span>Regular: ₱<?php echo htmlspecialchars($row['food_regular_price']); ?></span>
-                                <?php if (!empty($row['food_solo_price'])): ?><br>
-                                    <span>Solo: ₱<?php echo htmlspecialchars($row['food_solo_price']); ?></span>
-                                <?php endif; ?>
+                            <div class="menu-item-card" 
+                                data-id="<?php echo $row['food_id']; ?>"
+                                data-name="<?php echo htmlspecialchars($row['food_name']); ?>"
+                                data-regular-price="<?php echo htmlspecialchars($row['food_regular_price']); ?>"
+                                data-solo-price="<?php echo htmlspecialchars($row['food_solo_price'] ?? ''); ?>">
+                                <img src="<?php echo htmlspecialchars($row['food_image'] ?? 'assets/images/default-food.png');?>" 
+                                    alt="<?php echo htmlspecialchars($row['food_name']); ?>" 
+                                    class="menu-item-image">
+                                <div class="menu-item-name"><?php echo htmlspecialchars($row['food_name']); ?></div>
+                                <div class="menu-item-prices">
+                                    <span><?php 
+                                    switch($cat){
+                                        case 1:
+                                            echo "Regular ₱".htmlspecialchars($row['food_regular_price']);
+                                            break;
+                                        case 2:
+                                            echo "Large ₱".htmlspecialchars($row['food_regular_price']);
+                                            break;
+                                        case 3:
+                                            echo "Price ₱".htmlspecialchars($row['food_regular_price']) ?? null;
+                                            break;
+                                    }
+                                    ?></span>
+                                    <?php if (!empty($row['food_solo_price'])): ?><br>
+                                        <span><?php 
+                                        switch($cat){
+                                            case 1:
+                                                echo "Solo ₱".htmlspecialchars($row['food_solo_price']);
+                                                break;
+                                            case 2:
+                                                echo "Small ₱".htmlspecialchars($row['food_solo_price']);
+                                                break;
+                                            case 3:
+                                                echo null;
+                                                break;
+                                        }
+                                        ?></span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
                         <?php endwhile; ?>
                     </div>
                 <?php else: ?>
@@ -110,7 +137,7 @@ $stmt_categories = $menu->readCategories();
         </div>
         <div class="form-group">
             <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" min="1" value="1" class="form-control">
+            <input type="number" id="quantity" min="1" value="1" width=20% class="form-control">
         </div>
         <div class="form-group">
             <label for="notes">Notes:</label>
