@@ -39,7 +39,7 @@ $menu->readOne();
             </div>
             
             <button type="submit" class="btn">Update Menu</button>
-            <a href="index.php" class="btn btn-cancel">Cancel</a>
+            <a href="add.php" class="btn btn-cancel">Cancel</a>
         </form>
     </div>
 </body>

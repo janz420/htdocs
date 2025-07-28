@@ -15,7 +15,7 @@ $stmt_categories = $menu->readCategories();
     <meta charset="UTF-8">
     <link rel="icon" href="/assets/images/favicon.ico" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tupad Balay Counter</title>
+    <title>TUPAD BALAY Cashier</title>
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/order.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -33,7 +33,7 @@ $stmt_categories = $menu->readCategories();
                         <th>Item</th>
                         <th>Size</th>
                         <th>Price</th>
-                        <th>Quantity</th>
+                        <th style="width:12%">Quantity</th>
                         <th>Subtotal</th>
                         <th>Notes</th>
                         <th>Action</th>
@@ -51,6 +51,18 @@ $stmt_categories = $menu->readCategories();
                 </tfoot>
             </table>
             <br>
+            <!-- Add this after the order table but before the submit button -->
+            <div class="payment-section">
+                <div class="payment-details">
+                    <div>Total: <span id="display-total">₱0.00</span></div>
+                    <div>Amount: <span id="display-amount">₱0.00</span></div>
+                    <div>Change: <span id="display-change">₱0.00</span></div>
+                </div>
+                <div class="form-group">
+                    <label for="payment-amount">Amount Received:</label>
+                    <input type="number" style="width:200px;" id="payment-amount" min="0" step="0.01" class="form-control">
+                </div>
+            </div>
             <button class="btn btn-primary" id="submit-order">Submit Order</button>
         </div>
 
@@ -138,11 +150,11 @@ $stmt_categories = $menu->readCategories();
         </div>
         <div class="form-group">
             <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" min="1" value="1" width=20% class="form-control">
+            <input type="number" id="quantity" min="1" value="1" class="form-control">
         </div>
         <div class="form-group">
             <label for="notes">Notes:</label>
-            <textarea id="notes" class="form-control" placeholder="Special instructions..."></textarea>
+            <textarea id="notes" style="height: 80px; width: 218px;" class="form-control" placeholder="Special instructions..."></textarea>
         </div>
         <div class="action-buttons">
             <button class="btn btn-secondary" id="cancel-selection">Cancel</button>

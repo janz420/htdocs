@@ -14,9 +14,9 @@ if($_POST){
     $menu->food_solo_price = $_POST['price2'] ?? null;
 
     if($menu->update()){
-        header("Location: index.php?message=Customer+updated");
+        header("Location: add.php?message=Customer+updated");
     } else{
-        header("Location: index.php?error=Unable+to+update+customer");
+        header("Location: add.php?error=Unable+to+update+customer");
     }
 }
 ?>

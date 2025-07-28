@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelButton = document.getElementById('cancel-selection');
     const addToOrderButton = document.getElementById('add-to-order');
     const priceOptions = document.querySelectorAll('.price-option');
+
+    const paymentAmountInput = document.getElementById('payment-amount');
+    const displayTotal = document.getElementById('display-total');
+    const displayAmount = document.getElementById('display-amount');
+    const displayChange = document.getElementById('display-change');
+
     
     let orderItems = JSON.parse(localStorage.getItem('orderItems')) || [];
     let currentSelectedItem = null;
@@ -18,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize order table
     updateOrderTable();
-    
+
     // Handle category filtering with AJAX
     categoryFilterButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -28,6 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update active button styling
             categoryFilterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
+            
+            // Reset selection panel state
+            selectionPanel.style.display = 'none';
+            document.querySelectorAll('.menu-item-card').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Reset price options visibility (important!)
+            document.querySelector('.price-options').style.display = 'block';
+            document.getElementById('regular-option').style.display = 'block';
+            document.getElementById('solo-option').style.display = 'block';
             
             // Load menu items via AJAX
             fetch(`filter_menu.php?category=${category}`)
@@ -82,6 +99,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const soloOption = document.getElementById('solo-option');
         const priceOptionsContainer = document.querySelector('.price-options');
         
+        // Always show the container first, then hide if needed
+        priceOptionsContainer.style.display = 'block';
+        regularOption.style.display = 'block';
+        soloOption.style.display = 'block';
+        
         // Reset all options
         document.querySelectorAll('.price-option').forEach(option => option.classList.remove('selected'));
         
@@ -94,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
             soloOption.textContent = 'Small';
             regularOption.classList.add('selected');
             soloOption.style.display = currentSelectedItem.soloPrice ? 'block' : 'none';
-            //priceOptionsContainer.style.display = 'block';
         } 
         else if (currentItemCategory === 3) { // Addon
             currentSelectedSize = 'Addon';
@@ -111,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
             soloOption.textContent = 'Solo';
             regularOption.classList.add('selected');
             soloOption.style.display = currentSelectedItem.soloPrice ? 'block' : 'none';
-            //priceOptionsContainer.style.display = 'block';
         }
         
         // Reset quantity and notes
@@ -190,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             item.classList.remove('selected');
         });
     });
-    
+    paymentAmountInput.addEventListener('input', updatePaymentInfo);
     function updateOrderTable() {
         // Clear the table
         orderTableBody.innerHTML = '';
@@ -220,6 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add to total
             orderTotal += item.subtotal;
+            updatePaymentInfo();
         });
         
         // Update total
@@ -298,110 +319,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Update the printOrder function to include payment info
     function printOrder(orderItems, orderTotal) {
         return new Promise((resolve) => {
-            // Create a printer-friendly HTML
+            const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
+            const change = paymentAmount - orderTotal;
+            
             const printContent = `
             <!DOCTYPE html>
             <html>
             <head>
                 <title>Order Receipt</title>
                 <style>
-                    @page {
-                        size: 58mm 210mm;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    body {
-                        font-family: 'Arial Narrow', 'Courier New', monospace;
-                        font-weight: bold;
-                        font-size: 10px;
-                        width: 58mm;
-                        margin: 0;
-                        padding: 2mm;
-                        line-height: 1.2;
-                    }
-                    .receipt-header {
-                        text-align: center;
-                        margin-bottom: 3px;
-                        padding-bottom: 3px;
-                        border-bottom: 1px dashed #000;
-                    }
-                    .receipt-title {
-                        font-weight: bold;
-                        font-size: 11px;
-                        margin-bottom: 2px;
-                        text-transform: uppercase;
-                    }
-                    .receipt-date {
-                        font-weight: bold;
-                        font-size: 9px;
-                        margin-bottom: 3px;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 5px;
-                        table-layout: fixed;
-                    }
-                    th {
-                        text-align: left;
-                        border-bottom: 1px dashed #000;
-                        padding: 1px 0;
-                        font-weight: bold;
-                        font-size: 10px;
-                    }
-                    td {
-                        padding: 1px 0;
-                        vertical-align: top;
-                        font-size: 10px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-                    .col-item {
-                        width: 28%;
-                    }
-                    .col-size {
-                        width: 12%;
-                    }
-                    .col-qty {
-                        width: 10%;
-                        text-align: center;
-                    }
-                    .col-price {
-                        width: 18%;
-                        text-align: right;
-                        padding-right: 5px;
-                    }
-                    .col-notes {
-                        width: 30%;
-                        word-break: break-word;
-                        padding-left: 3px;
-                    }
-                    .total-row {
-                        font-weight: bold;
-                        border-top: 1px dashed #000;
-                        font-size: 10px;
-                    }
-                    .footer {
-                        text-align: center;
-                        margin-top: 5px;
-                        font-size: 8px;
-                        padding-top: 3px;
-                        border-top: 1px dashed #000;
-                    }
-                    .text-right {
-                        text-align: right;
-                    }
-                    .text-center {
-                        text-align: center;
-                    }
-                    .cut-line {
-                        text-align: center;
-                        margin: 5px 0;
-                        font-size: 10px;
-                        white-space: nowrap;
-                    }
+                    /* ... (existing styles) ... */
                 </style>
             </head>
             <body>
@@ -437,6 +367,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>Total:</td>
                             <td class="text-right">₱${orderTotal.toFixed(2)}</td>
                         </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td>Amount:</td>
+                            <td class="text-right">₱${paymentAmount.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td>Change:</td>
+                            <td class="text-right">₱${change >= 0 ? change.toFixed(2) : '0.00'}</td>
+                        </tr>
                     </tfoot>
                 </table>
                 
@@ -448,7 +388,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
                 <script>
-                    // Automatically trigger print when loaded
                     window.onload = function() {
                         setTimeout(function() {
                             window.print();
@@ -473,5 +412,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 resolve();
             };
         });
+    }
+    function updatePaymentInfo() {
+        const orderTotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+        const paymentAmount = parseFloat(paymentAmountInput.value) || 0;
+        const change = paymentAmount - orderTotal;
+        
+        displayTotal.textContent = `₱${orderTotal.toFixed(2)}`;
+        displayAmount.textContent = `₱${paymentAmount.toFixed(2)}`;
+        displayChange.textContent = `₱${change >= 0 ? change.toFixed(2) : '0.00'}`;
+        
+        // Highlight change if negative (insufficient payment)
+        displayChange.style.color = change < 0 ? 'red' : '';
     }
 });
