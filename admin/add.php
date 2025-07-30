@@ -1,6 +1,7 @@
 <?php
 include_once '../config/Database.php';
 include_once '../models/Menu.php';
+include_once '../models/Login.php';
 
 $database = new Database();
 $db = $database->getConnection();
@@ -8,6 +9,18 @@ $db = $database->getConnection();
 $menu = new Menu($db);
 $stmt = $menu->read();
 $stmt_categories = $menu->readCategories();
+
+// Initialize Login object
+$login = new Login($db);
+
+// Check if user is logged in, if not redirect to login page
+if (!$login->isLoggedIn()) {
+    header("Location: login.php");
+    exit;
+}
+
+// Get current user data
+$user = $login->getCurrentUser();
 ?>
 <?php include 'header.php'?>
     <div class="container">

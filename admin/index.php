@@ -2,6 +2,7 @@
 // admin/dashboard.php
 require_once '../config/database.php';
 require_once '../models/Sales.php';
+require_once '../models/Login.php';
 
 // Initialize database connection
 $database = new Database();
@@ -9,6 +10,18 @@ $db = $database->getConnection();
 
 // Initialize Sales model
 $sales = new Sales($db);
+
+// Initialize Login object
+$login = new Login($db);
+
+// Check if user is logged in, if not redirect to login page
+if (!$login->isLoggedIn()) {
+    header("Location: login.php");
+    exit;
+}
+
+// Get current user data
+$user = $login->getCurrentUser();
 
 // Get filter values from request
 $filters = [

@@ -3,7 +3,7 @@ class Database {
     private $host = "localhost";
     private $db_name = "tupadbalay_db";
     private $username = "root";
-    private $password = "";
+    private $password = "janzs420";
     public $conn;
 
     public function getConnection() {
